@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 
 namespace Ewallet.Mvc.DTOs;
-
+ 
 public record UserRequest(
     [Required(ErrorMessage = "Username wajib diisi.")]
     [StringLength(50, MinimumLength = 3, ErrorMessage = "Username minimal 3 dan maksimal 50 karakter.")]
@@ -10,7 +10,7 @@ public record UserRequest(
 
     [Required(ErrorMessage = "Password wajib diisi.")]
     [StringLength(100, MinimumLength = 6, ErrorMessage = "Password minimal 6 karakter.")]
-    string Password,
+    string PasswordHash,
 
     [Required(ErrorMessage = "Email wajib diisi.")]
     [EmailAddress(ErrorMessage = "Format email tidak valid.")]

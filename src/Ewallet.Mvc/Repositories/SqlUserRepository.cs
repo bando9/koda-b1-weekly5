@@ -1,177 +1,182 @@
 
-// namespace Ewallet.Mvc.Repositories;
+using System.Data;
+using Ewallet.Mvc.Models;
+using Microsoft.Data.SqlClient;
+
+namespace Ewallet.Mvc.Repositories;
 
 
-// public class SqlUserRepository : IUserRepository
-// {
-//     private readonly string _connectionString;
+public class SqlUserRepository : IUserRepository
+{
+    private readonly string _connectionString;
     
 
-//     public SqlUserRepository(IConfiguration configuration)
-//     {
-//         _connectionString=configuration.GetConnectionString("ewalletdb") ?? throw new InvalidOperationException("Connection string tidak ditemukan di appsettings.");
+    public SqlUserRepository(IConfiguration configuration)
+    {
+        _connectionString=configuration.GetConnectionString("Ewalletdb") ?? throw new InvalidOperationException("Connection string tidak ditemukan di appsettings atau blm configurasi di Program.cs.");
         
-//     }
+    }
 
-//     public async Task<IReadOnlyList<Product>> GetAllAsync(CancellationToken cancellationToken)
-//     {
-//         const string sql = """
-//             SELECT Id, CategoryId, ProductCode, Name, Price, Stock, IsActive
-//             FROM dbo.Product
-//         """;
+    public async Task<IReadOnlyList<User>> GetAllAsync(CancellationToken cancellationToken)
+    {
+        const string sql = """
+            SELECT Id, Username, FullName, Email, Photo, Phone
+            FROM dbo.Users;
+        """;
 
-//         var products = new List<Product>();
+        var users = new List<User>();
 
-//         await using var connection = new SqlConnection(_connectionString);
+        await using var connection = new SqlConnection(_connectionString);
 
-//         await connection.OpenAsync(cancellationToken);
+        await connection.OpenAsync(cancellationToken);
 
-//         await using var command = new SqlCommand(sql, connection);
+        await using var command = new SqlCommand(sql, connection);
 
-//         await using var reader = await command.ExecuteReaderAsync(cancellationToken);
+        await using var reader = await command.ExecuteReaderAsync(cancellationToken);
 
-//         while(await reader.ReadAsync(cancellationToken))
-//         {
-//             products.Add(ReadProduct(reader));
-//         }
-//         return products;
-//     }
+        while(await reader.ReadAsync(cancellationToken))
+        {
+            users.Add(ReadUser(reader));
+        }
+        return users;
+    }
 
-//     public async Task<Product?> GetByCodeAsync(string productCode, CancellationToken cancellationToken)
-//     {
-//         const string sql = """
-//         SELECT Id, CategoryId, ProductCode, Name, Price, Stock, IsActive FROM dbo.Product WHERE ProductCode = @productCode;
-//         """;
+    public async Task<User?> GetByIdAsync(int id, CancellationToken cancellationToken)
+    {
+        const string sql = """
+        SELECT Id, Username, FullName, Email, Photo, Phone FROM dbo.Users WHERE Id = @id;
+        """;
 
-//         await using var connection = new SqlConnection(_connectionString);
+        await using var connection = new SqlConnection(_connectionString);
 
-//         await connection.OpenAsync(cancellationToken);
+        await connection.OpenAsync(cancellationToken);
 
-//         await using var command = new SqlCommand(sql, connection);
+        await using var command = new SqlCommand(sql, connection);
 
-//         AddProductCode(command, productCode);
+        AddUserId(command, id);
 
-//         await using var reader = await command.ExecuteReaderAsync(cancellationToken);
+        await using var reader = await command.ExecuteReaderAsync(cancellationToken);
 
-//         if (!await reader.ReadAsync(cancellationToken))
-//         {
-//             return null;
-//         }
-//         return ReadProduct(reader);
-//     }
+        if (!await reader.ReadAsync(cancellationToken))
+        {
+            return null;
+        }
+        return ReadUser(reader);
+    }
 
-//     public async Task<bool> TryAddAsync(Product product, CancellationToken cancellationToken)
-//     {
-//         const string sql = """
-//             INSERT INTO dbo.Product (CategoryId, ProductCode, Name, Price, Stock)
-//             VALUES (@categoryId, @productCode, @name, @price, @stock);
-//         """;
+    public async Task<bool> TryAddAsync(User user, CancellationToken cancellationToken)
+    {
+        const string sql = """
+            INSERT INTO dbo.Users (Username, PasswordHash, Email, FullName, Phone, Photo)
+            VALUES (@username, @passwordHash, @email, @fullName, @phone, @photo);
+        """;
 
-//         await using var connection = new SqlConnection(_connectionString);
+        await using var connection = new SqlConnection(_connectionString);
 
-//         await connection.OpenAsync(cancellationToken);
+        await connection.OpenAsync(cancellationToken);
 
-//         await using var command = new SqlCommand(sql, connection);
+        await using var command = new SqlCommand(sql, connection);
 
-//         AddProductParameters(command, product);
+        AddUserParameters(command, user);
 
-//         try
-//         {
-//             var affectedRows = await command.ExecuteNonQueryAsync(cancellationToken);
+        try
+        {
+            var affectedRows = await command.ExecuteNonQueryAsync(cancellationToken);
 
-//             return affectedRows == 1;
-//         }
-//         catch (SqlException e) when (e.Number is 2601 or 2627)
-//         {
-//             return false;
-//         }
-//         catch (SqlException e)
-//         {
-//             System.Console.WriteLine($"SQL Error tidak terduga saat menambah produk: {e.Number}", e.Number);
-//             return false;
-//         }
-//     }
+            return affectedRows == 1;
+        }
+        catch (SqlException e) when (e.Number is 2601 or 2627)
+        {
+            return false;
+        }
+        catch (SqlException e)
+        {
+            System.Console.WriteLine($"SQL Error tidak terduga saat menambah user: {e.Number}", e.Number);
+            return false;
+        }
+    }
 
-//     public async Task<bool> TryDeleteAsync(string productCode, CancellationToken cancellationToken)
-//     {
-//         const string sql = """
-//             DELETE FROM dbo.Product WHERE ProductCode = @productCode;
-//         """;
+    public async Task<bool> TryDeleteAsync(int id, CancellationToken cancellationToken)
+    {
+        const string sql = """
+            DELETE FROM dbo.Users WHERE Id = @id;
+        """;
 
-//         await using var connection = new SqlConnection(_connectionString);
+        await using var connection = new SqlConnection(_connectionString);
 
-//         await connection.OpenAsync(cancellationToken);
+        await connection.OpenAsync(cancellationToken);
 
-//         await using var command = new SqlCommand(sql, connection);
+        await using var command = new SqlCommand(sql, connection);
 
-//         AddProductCode(command, productCode);
+        AddUserId(command, id);
         
-//         var affectedRows = await command.ExecuteNonQueryAsync(cancellationToken);
+        var affectedRows = await command.ExecuteNonQueryAsync(cancellationToken);
 
-//         return affectedRows == 1;
+        return affectedRows == 1;
 
 
-//     }
+    }
 
-//     public async Task<bool> TryUpdateAsync(Product product, CancellationToken cancellationToken)
-//     {
-//         const string sql = """
-//             UPDATE dbo.Product SET
-//                 CategoryId = @categoryId,
-//                 Name = @name,
-//                 Price = @price,
-//                 Stock = @stock
-//             WHERE ProductCode = @productCode;
-//             """;
+    public async Task<bool> TryUpdateAsync(User user, CancellationToken cancellationToken)
+    {
+        const string sql = """
+            UPDATE dbo.Users SET
+                Username = @Username,
+                Email = @Email,
+                FullName = @FullName,
+                Phone = @Phone,
+                Photo = @Photo
+            WHERE Id = @Id;
+            """;
 
-//         await using var connection = new SqlConnection(_connectionString);
+        await using var connection = new SqlConnection(_connectionString);
 
-//         await connection.OpenAsync(cancellationToken);
+        await connection.OpenAsync(cancellationToken);
 
-//         await using var command = new SqlCommand(sql, connection);
+        await using var command = new SqlCommand(sql, connection);
 
-//         AddProductParameters(command, product);
+        AddUserParameters(command, user);
+        AddUserId(command, user.Id);
         
-//         var affectedRows = await command.ExecuteNonQueryAsync(cancellationToken);
+        var affectedRows = await command.ExecuteNonQueryAsync(cancellationToken);
 
-//         return affectedRows == 1;
+        return affectedRows == 1;
 
-//     }
-
-
-//     // * ==================== METHOD ====================
+    }
 
 
-//     private void AddProductParameters(SqlCommand command, Product product)
-//     {
-//         AddProductCode(command, product.ProductCode);
+    // * ==================== METHOD ====================
 
-//         command.Parameters.Add("@categoryId", SqlDbType.Int).Value = product.CategoryId;
-
-//         command.Parameters.Add("@name", SqlDbType.NVarChar, 100).Value = product.Name;
-
-//         command.Parameters.Add("@stock", SqlDbType.Int).Value = product.Stock;
-
-//         var price = command.Parameters.Add("@price", SqlDbType.Decimal);
-//         price.Precision = 18;
-//         price.Scale = 2;
-//         price.Value = product.Price;
-//     }
-
-//     private static void AddProductCode(SqlCommand command, string productCode)
-//     {
-//         command.Parameters.Add("@productCode", SqlDbType.NVarChar, 30).Value = productCode.Trim().ToUpperInvariant();
-//     }
-
-//     private static Product ReadProduct(SqlDataReader reader)
-//     {
-//         return new Product(
-//             reader.GetInt32(1),
-//             reader.GetString(2),
-//             reader.GetString(3),
-//             reader.GetDecimal(4),
-//             reader.GetInt32(5)
-//         );
+    private static void AddUserParameters(SqlCommand command, User user)
+    {
+        command.Parameters.Add("@Username", SqlDbType.NVarChar, 50).Value = user.Username.Trim();
+        command.Parameters.Add("@PasswordHash", SqlDbType.NVarChar, 255).Value = user.PasswordHash;
+        command.Parameters.Add("@Email", SqlDbType.NVarChar, 100).Value = user.Email.Trim().ToLowerInvariant();
+        command.Parameters.Add("@FullName", SqlDbType.NVarChar, 100).Value = user.FullName.Trim();
+        command.Parameters.Add("@Phone", SqlDbType.NVarChar, 20).Value = user.Phone.Trim();
         
-//     }
-// }
+        command.Parameters.Add("@Photo", SqlDbType.NVarChar, 255).Value = 
+            string.IsNullOrWhiteSpace(user.Photo) ? DBNull.Value : user.Photo.Trim();
+    }
+
+    private static void AddUserId(SqlCommand command, int userId)
+    {
+        command.Parameters.Add("@Id", SqlDbType.Int).Value = userId;
+    }
+
+    private static User ReadUser(SqlDataReader reader)
+{
+    var photoOrdinal = reader.GetOrdinal("Photo");
+
+    return new User(
+        id: reader.GetInt32(reader.GetOrdinal("Id")),
+        username: reader.GetString(reader.GetOrdinal("Username")),
+        passwordHash: string.Empty,
+        email: reader.GetString(reader.GetOrdinal("Email")),
+        photo: reader.IsDBNull(photoOrdinal) ? string.Empty : reader.GetString(photoOrdinal),
+        fullName: reader.GetString(reader.GetOrdinal("FullName")),
+        phone: reader.GetString(reader.GetOrdinal("Phone"))
+    );
+}
+}
+

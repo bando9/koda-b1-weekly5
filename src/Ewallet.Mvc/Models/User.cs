@@ -15,6 +15,8 @@ public class User
     public User(int id,string username, string passwordHash, string email, string photo, string fullName, string phone)
     {
         if (string.IsNullOrWhiteSpace(username)) throw new ArgumentException("Username tidak boleh kosong.", nameof(username));
+        if (string.IsNullOrWhiteSpace(email)) throw new ArgumentException("Email tidak boleh kosong.", nameof(email));
+        if (string.IsNullOrWhiteSpace(fullName)) throw new ArgumentException("FullName tidak boleh kosong.", nameof(fullName));
 
         Id=id;
         Username = username;
@@ -23,6 +25,15 @@ public class User
         Photo=photo;
         FullName=fullName;
         Phone=phone;
+    }
+
+    public void UpdateProfile(string fullName, string email, string phone, string? photo)
+    {
+        FullName = fullName;
+        Email = email;
+        Phone = phone;
+        Photo = photo ?? string.Empty;
+        UpdatedAt = DateTime.UtcNow;
     }
 
     public string GetInformation()

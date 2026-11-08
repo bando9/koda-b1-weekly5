@@ -1,0 +1,53 @@
+@baseUrl = http://localhost:5052
+
+
+
+# * ================ USERS
+
+### Get all Users
+GET {{baseUrl}}/api/v1/users
+Accept: application/json
+
+### Get user by Id
+GET {{baseUrl}}/api/v1/users/1
+Accept: application/json
+
+### Post user
+POST {{baseUrl}}/api/v1/users/
+Accept: application/json
+Content-Type: application/json
+
+{
+    "Username": "tesnadinmsdwdakarim",
+    "PasswordHash": "password_nadins",
+    "Email": "nadinsd@gmail.com",
+    "FullName": "Nadin Makarim",
+    "Phone": "89857384991",
+    "Photo": "https://linkphotonadin.jpg"
+}
+
+### Delete user
+DELETE  {{baseUrl}}/api/v1/users/10
+Accept: application/json
+
+### Update user by id
+PUT {{baseUrl}}/api/v1/users/5
+Accept: application/json
+Content-Type: application/json
+
+{
+    "Username": "nadinmakarim",
+    "PasswordHash": "password_nadins",
+    "Email": "nadinsd@gmail.com",
+    "FullName": "Nadin Makarim",
+    "Phone": "89857384991",
+    "Photo": "https://linkbarunadin.jpg"
+}
+
+
+
+
+
+# * ================ WALLETS
+
+

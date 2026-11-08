@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Ewallet.Mvc.DTOs;
 
-public record UserUpdateRequest(
+public record UpdateUserRequest(
     [Required(ErrorMessage = "Nama lengkap wajib diisi.")]
     [StringLength(100, ErrorMessage = "Nama lengkap maksimal 100 karakter.")]
     string FullName,
