@@ -2,7 +2,7 @@ namespace Ewallet.Mvc.Models;
 
 public class User
 {
-    public string Id { get; private set; }
+    public int Id { get; private set; }
     public string Username { get; private set; }
     public string PasswordHash { get; private set; } 
     public string Email { get; private set; } 
@@ -12,12 +12,10 @@ public class User
     public DateTime CreatedAt {get;set;} = DateTime.Now;
     public DateTime UpdatedAt {get;set;} = DateTime.Now;
 
-    public User(string id,string username, string passwordHash, string email, string photo, string fullName, string phone)
+    public User(int id,string username, string passwordHash, string email, string photo, string fullName, string phone)
     {
-        if (string.IsNullOrWhiteSpace(id)) throw new ArgumentException("ID tidak boleh kosong.", nameof(id));
-
         if (string.IsNullOrWhiteSpace(username)) throw new ArgumentException("Username tidak boleh kosong.", nameof(username));
-        
+
         Id=id;
         Username = username;
         PasswordHash=passwordHash;
