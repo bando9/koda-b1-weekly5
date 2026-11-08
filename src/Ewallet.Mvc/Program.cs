@@ -1,3 +1,4 @@
+using Ewallet.Mvc.Middlewares;
 using Ewallet.Mvc.Repositories;
 using Ewallet.Mvc.Services;
 
@@ -9,6 +10,20 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddControllers();
 builder.Services.AddScoped<IUserRepository, SqlUserRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
+
+builder.Services.AddProblemDetails(
+    option =>
+    {
+        option.CustomizeProblemDetails = context =>
+        {
+            context.ProblemDetails.Instance ??= context.HttpContext.Request.Path.Value;
+
+            context.ProblemDetails.Extensions["traceId"] = context.HttpContext.TraceIdentifier;
+        };
+    }
+);
+
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
 var app = builder.Build();
 // Configure the HTTP request pipeline.

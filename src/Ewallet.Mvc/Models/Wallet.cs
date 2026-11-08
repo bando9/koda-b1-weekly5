@@ -4,16 +4,16 @@ namespace Ewallet.Mvc.Models;
 
 public class Wallet
 {
-    public string Id {get;private set;}
+    public int Id {get;private set;}
     public string WalletNumber {get;private set;}
     public string PINHash {get;private set;}
     public decimal Balance {get;private set;}
-    public string UserId {get; private set;}
+    public int UserId {get; private set;}
     public DateTime CreatedAt {get;set;} = DateTime.Now;
     public DateTime UpdatedAt {get;set;} = DateTime.Now;
     
 
-    public Wallet(string id, string walletNumber, string pinHash, string userId, decimal balance = 0)
+    public Wallet(int id, string walletNumber, string pinHash, int userId, decimal balance = 0)
     {        
         Id=id;
         WalletNumber=walletNumber;
