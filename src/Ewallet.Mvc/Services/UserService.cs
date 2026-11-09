@@ -79,7 +79,6 @@ public sealed class UserService : IUserService
 
     private static string GenerateWalletNumber()
 {
-    // 12 digit acak yang aman secara kriptografis
     return string.Concat(Enumerable.Range(0, 12)
         .Select(_ => RandomNumberGenerator.GetInt32(0, 10)));
 }

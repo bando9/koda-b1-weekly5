@@ -39,38 +39,7 @@ public sealed class UsersController : ControllerBase
     }
 
 
-    // // *Post User + Wallet
-    // [HttpPost]
-    // [ProducesResponseType(typeof(UserWalletResponse), StatusCodes.Status201Created)]
-    // [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-    // public async Task<ActionResult<UserWalletResponse>> Create([FromBody] UserRequest request, CancellationToken cancellationToken)
-    // {
-
-
-    //     // try
-    //     // {           
-            
-    //     //     var created = await _service.CreateAsync(request, cancellationToken);
-
-    //     //     if (created is null)
-    //     //     {
-    //     //         return Problem(statusCode: StatusCodes.Status409Conflict, title: "Username or email already exists");
-    //     //     }
-
-    //     //     return CreatedAtAction(
-    //     //         nameof(GetById),
-    //     //         new { productCode = created.Id }, created);
-    //     // }
-    //     // catch (ArgumentException e)
-    //     // {
-    //     //     return Problem(
-    //     //         statusCode: StatusCodes.Status400BadRequest,
-    //     //         title: "Invalid product data!",
-    //     //         detail: e.Message);
-    //     // }
-
-    // }
-
+    // *Create user & Wallet
     [HttpPost]
     [ProducesResponseType(typeof(UserResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]

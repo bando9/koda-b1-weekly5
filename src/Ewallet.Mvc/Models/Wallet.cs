@@ -21,11 +21,11 @@ public class Wallet
         UserId=userId;
     }
 
-    public Wallet(string walletNumber, int userId, decimal balance = 0)
-    {        
+    public Wallet(string walletNumber, int userId,decimal balance = 0)
+    {  
         WalletNumber=walletNumber;
-        Balance = balance >= 0 ? balance : throw new ArgumentException("Saldo gaboleh kurang dari 0");
         UserId=userId;
+        Balance = balance >= 0 ? balance : throw new ArgumentException("Saldo gaboleh kurang dari 0");
     }
 
     public string GetInformation()

@@ -9,10 +9,10 @@ GET {{baseUrl}}/api/v1/users
 Accept: application/json
 
 ### Get user by Id
-GET {{baseUrl}}/api/v1/users/1
+GET {{baseUrl}}/api/v1/users/11
 Accept: application/json
 
-### Post user
+### Register user + wallet
 POST {{baseUrl}}/api/v1/users/
 Accept: application/json
 Content-Type: application/json
@@ -49,19 +49,6 @@ Content-Type: application/json
 
 
 # * ================ WALLETS
-### Register user + wallet
-POST {{baseUrl}}/api/v1/users
-Accept: application/json
-Content-Type: application/json
-
-{
-    "Username": "dikapratamanewddw",
-    "PasswordHash": "password_dikad",
-    "Email": "dikanewas@gmail.com",
-    "FullName": "Dika Pratama",
-    "Phone": "89213343873",
-    "Photo": null
-}
 
 ### Topup by userId
 POST {{baseUrl}}/api/v1/wallets/5/topups
@@ -72,3 +59,7 @@ Content-Type: application/json
     "amount": 25000,
     "description": "topup makan malam"
 }
+
+### Get wallet by user Id
+GET {{baseUrl}}/api/v1/wallets/5
+Accept: application/json

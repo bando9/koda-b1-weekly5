@@ -4,7 +4,6 @@ namespace Ewallet.Mvc.Services;
 
 public interface IWalletService
 {
-    // Task<TopUpResponse?> CreateAsync(TopUpRequest request, int userId,CancellationToken cancellationToken);
-
+    Task<WalletResponse?> GetByUserIdAsync(int userId, CancellationToken cancellationToken);
     Task<TopUpResponse> TopUpAsync(int userId, TopUpRequest request,CancellationToken cancellationToken);
 }

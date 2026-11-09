@@ -9,7 +9,7 @@ public sealed record WalletResponse(
     decimal Balance,
     int UserId
 ){
-    public WalletResponse FromModel(Wallet wallet) => new(
+    public static WalletResponse FromModel(Wallet wallet) => new(
         wallet.Id,
         wallet.WalletNumber,
         wallet.Balance,

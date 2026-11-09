@@ -16,6 +16,17 @@ public sealed class WalletsController : ControllerBase
         _service = service;   
     }   
 
+    [HttpGet("{userId}")]
+    [ProducesResponseType(typeof(WalletResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<WalletResponse>> GetById([FromRoute] int userId, CancellationToken cancellationToken)
+    {
+        var wallet = await _service.GetByUserIdAsync(userId, cancellationToken);
+
+        return wallet is null ? NotFound() : Ok(wallet);
+    }
+
+
     [HttpPost("{userId}/topups")]
     [ProducesResponseType(typeof(TopUpResponse),StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ProblemDetails),StatusCodes.Status400BadRequest)]
