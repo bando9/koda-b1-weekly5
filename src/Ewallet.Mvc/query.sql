@@ -50,10 +50,6 @@ JOIN Users u ON w.UserId=u.Id
 WHERE u.Id = 12
 GO
 
-select * From dbo.Users;
-select * From dbo.Wallets;
-GO
-
 -- *TEST: insert with output into in one query
 -- ref: https://stackoverflow.com/questions/49675059/insert-with-id-from-previous-insert
 
@@ -70,3 +66,42 @@ SELECT
     150000
 FROM @InsertedUsers u;
 -- SUccess
+
+
+
+CREATE TABLE dbo.Transactions(
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+    SenderWalletId INT NULL,
+    ReceiverWalletId INT NOT NULL,
+    Amount DECIMAL(18,2) NOT NULL CHECK(Amount >=1),
+    TransactionType NVARCHAR(20) NOT NULL,
+    Description NVARCHAR(150) NULL,
+    CreatedAt DATETIME2 NOT NULL DEFAULT GETDATE(),
+)
+GO
+
+select * From dbo.Users;
+select * From dbo.Wallets;
+select * From dbo.Transactions;
+GO
+
+
+-- *Contoh TopUp
+
+UPDATE dbo.Wallets SET Balance = Balance + 25000 WHERE UserId = 5;
+
+INSERT INTO dbo.Transactions (ReceiverWalletId, Amount, TransactionType, Description) VALUES
+(11269012,50000,'Income','Top Up makan malem');
+GO
+--*Test TopUp Transaction
+BEGIN TRANSACTION;
+
+UPDATE dbo.Wallets SET Balance = Balance + 25000 WHERE UserId = 5;
+
+INSERT INTO dbo.Transactions (ReceiverWalletId, Amount, TransactionType, Description)
+VALUES (11269012, 25000, 'Income', 'Top Up makan malem');
+
+ROLLBACK;
+
+select * from dbo.Transactions where ReceiverWalletId = 11269012; 
+

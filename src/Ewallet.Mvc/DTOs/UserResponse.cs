@@ -9,7 +9,7 @@ public sealed record UserResponse(
     string Photo , 
     string FullName ,
     string Phone 
-)
+) 
 {
     public static UserResponse FromModel(User user) => new(
         user.Id,

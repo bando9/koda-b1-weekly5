@@ -63,5 +63,12 @@ Content-Type: application/json
     "Photo": null
 }
 
+### Topup by userId
+POST {{baseUrl}}/api/v1/wallets/5/topups
+Accept: application/json
+Content-Type: application/json
 
-
+{
+    "amount": 25000,
+    "description": "topup makan malam"
+}

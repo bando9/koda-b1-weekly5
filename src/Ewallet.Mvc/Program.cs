@@ -11,6 +11,12 @@ builder.Services.AddControllers();
 builder.Services.AddScoped<IUserRepository, SqlUserRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
 
+// builder.Services.AddScoped<ITransactionRepository, SqlTransactionRepository>();
+
+builder.Services.AddScoped<IWalletRepository, SqlWalletRepository>();
+builder.Services.AddScoped<IWalletService, WalletService>();
+
+
 builder.Services.AddProblemDetails(
     option =>
     {
