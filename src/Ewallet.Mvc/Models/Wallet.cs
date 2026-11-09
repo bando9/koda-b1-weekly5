@@ -6,18 +6,17 @@ public class Wallet
 {
     public int Id {get;private set;}
     public string WalletNumber {get;private set;}
-    public string PINHash {get;private set;}
+
     public decimal Balance {get;private set;}
     public int UserId {get; private set;}
     public DateTime CreatedAt {get;set;} = DateTime.Now;
     public DateTime UpdatedAt {get;set;} = DateTime.Now;
     
 
-    public Wallet(int id, string walletNumber, string pinHash, int userId, decimal balance = 0)
+    public Wallet(int id, string walletNumber, int userId, decimal balance = 0)
     {        
         Id=id;
         WalletNumber=walletNumber;
-        PINHash=pinHash;
         Balance = balance >= 0 ? balance : throw new ArgumentException("Saldo gaboleh kurang dari 0");
         UserId=userId;
     }
@@ -52,12 +51,6 @@ public class Wallet
         }
         UpdatedAt = DateTime.Now;
         return Balance+=amount;
-    }
-
-    public void UpdatePin(string newPinHash)
-    {
-        PINHash = newPinHash;
-        UpdatedAt = DateTime.UtcNow;
     }
 
     

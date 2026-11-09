@@ -49,5 +49,19 @@ Content-Type: application/json
 
 
 # * ================ WALLETS
+### Register user + wallet
+POST {{baseUrl}}/api/v1/users
+Accept: application/json
+Content-Type: application/json
+
+{
+    "Username": "dikapratamanewddw",
+    "PasswordHash": "password_dikad",
+    "Email": "dikanewas@gmail.com",
+    "FullName": "Dika Pratama",
+    "Phone": "89213343873",
+    "Photo": null
+}
+
 
 

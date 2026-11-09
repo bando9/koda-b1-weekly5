@@ -29,7 +29,6 @@ CREATE TABLE dbo.Wallets(
     Id INT IDENTITY(1,1) PRIMARY KEY,
     UserId INT NOT NULL UNIQUE,
     WalletNumber NVARCHAR(20) NOT NULL UNIQUE,
-    PINHash NVARCHAR(255) NOT NULL,
     Balance DECIMAL(18,2) NOT NULL DEFAULT 0 CHECK (Balance>=0),
     CreatedAt DATETIME2 NOT NULL DEFAULT GETDATE(),
     Updated DATETIME2 NULL DEFAULT GETDATE()
@@ -41,7 +40,7 @@ GO
 INSERT INTO dbo.Users (Username, PasswordHash, Email, Fullname, Phone, Photo) VALUES
 ('danymz', 'password_dany', 'dany@gmail.com', 'Dany Zakariya', '892736478329', null);
 
-INSERT INTO dbo.Wallets(UserId,WalletNumber,PINHash,Balance) VALUES
+INSERT INTO dbo.Wallets(UserId,WalletNumber,Balance) VALUES
 (5,'11269012','123456',0)
 GO 
 
@@ -63,7 +62,7 @@ INSERT INTO dbo.Users (Username, PasswordHash, Email, Fullname, Phone, Photo)
 OUTPUT INSERTED.Id INTO @InsertedUsers
 VALUES ('ayudiarhm', 'password_ayu', 'dewi@gmail.com', 'Ayudia Rahma', '89783472389', 'https://cdn.linkpotodewi.jpg');
 
-INSERT INTO dbo.Wallets (UserId, WalletNumber, PINHash, Balance)
+INSERT INTO dbo.Wallets (UserId, WalletNumber, Balance)
 SELECT 
     u.Id, 
     '28913819', 

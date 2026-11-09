@@ -1,3 +1,4 @@
+using System.Security.Cryptography;
 using Ewallet.Mvc.DTOs;
 using Ewallet.Mvc.Models;
 using Ewallet.Mvc.Repositories;
@@ -16,17 +17,20 @@ public sealed class UserService : IUserService
 
     public async Task<UserResponse?> CreateAsync(UserRequest request, CancellationToken cancellationToken)
     {
-        
-        var user = new User(0, request.Username, request.PasswordHash, request.Email, request.FullName, request.Phone, request.Photo ?? string.Empty);
+        var user = new User(
+            id:0,
+            username:request.Username,passwordHash:request.PasswordHash,email:request.Email,photo:request.Photo ?? string.Empty,fullName:request.FullName,phone:request.Phone
+        );
 
-        var created = await _repository.TryAddAsync(user, cancellationToken);
+        var wallet = new Wallet(id:0,walletNumber:GenerateWalletNumber(),userId:0);
 
-        if (!created)
-        {
-            return null;
-        }
+        var newUserId = await _repository.TryAddWithWalletAsync(user,wallet,cancellationToken);
 
-        return created ? UserResponse.FromModel(user) : null;
+        if(newUserId is null) return null;
+
+        var created = new User(newUserId.Value,user.Username,user.PasswordHash,user.Email,user.Photo,user.FullName,user.Phone);
+
+        return UserResponse.FromModel(created);
     }
 
     public Task<bool> DeleteAsync(int id, CancellationToken cancellationToken)
@@ -72,4 +76,11 @@ public sealed class UserService : IUserService
 
         return updated ? UserResponse.FromModel(existingUser) : null;
     }
+
+    private static string GenerateWalletNumber()
+{
+    // 12 digit acak yang aman secara kriptografis
+    return string.Concat(Enumerable.Range(0, 12)
+        .Select(_ => RandomNumberGenerator.GetInt32(0, 10)));
+}
 }

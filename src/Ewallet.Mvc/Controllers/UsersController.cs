@@ -39,34 +39,69 @@ public sealed class UsersController : ControllerBase
     }
 
 
-    // *Post Product
+    // // *Post User + Wallet
+    // [HttpPost]
+    // [ProducesResponseType(typeof(UserWalletResponse), StatusCodes.Status201Created)]
+    // [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    // public async Task<ActionResult<UserWalletResponse>> Create([FromBody] UserRequest request, CancellationToken cancellationToken)
+    // {
+
+
+    //     // try
+    //     // {           
+            
+    //     //     var created = await _service.CreateAsync(request, cancellationToken);
+
+    //     //     if (created is null)
+    //     //     {
+    //     //         return Problem(statusCode: StatusCodes.Status409Conflict, title: "Username or email already exists");
+    //     //     }
+
+    //     //     return CreatedAtAction(
+    //     //         nameof(GetById),
+    //     //         new { productCode = created.Id }, created);
+    //     // }
+    //     // catch (ArgumentException e)
+    //     // {
+    //     //     return Problem(
+    //     //         statusCode: StatusCodes.Status400BadRequest,
+    //     //         title: "Invalid product data!",
+    //     //         detail: e.Message);
+    //     // }
+
+    // }
+
     [HttpPost]
     [ProducesResponseType(typeof(UserResponse), StatusCodes.Status201Created)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<UserResponse>> Create([FromBody] UserRequest request, CancellationToken cancellationToken)
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
+    public async Task<ActionResult<UserResponse>> RegisterWithWallet(
+        [FromBody] UserRequest request, CancellationToken cancellationToken)
     {
         try
-        {           
-            
+        {
             var created = await _service.CreateAsync(request, cancellationToken);
 
             if (created is null)
             {
-                return Problem(statusCode: StatusCodes.Status409Conflict, title: "Username or email already exists");
+                return Problem(
+                    statusCode: StatusCodes.Status409Conflict,
+                    title: "Registrasi gagal.",
+                    detail: "Username atau email sudah digunakan.");
             }
 
             return CreatedAtAction(
                 nameof(GetById),
-                new { productCode = created.Id }, created);
+                new { id = created.Id },
+                created);
         }
         catch (ArgumentException e)
         {
             return Problem(
                 statusCode: StatusCodes.Status400BadRequest,
-                title: "Invalid product data!",
+                title: "Invalid user data!",
                 detail: e.Message);
         }
-
     }
 
     // *Update user by id

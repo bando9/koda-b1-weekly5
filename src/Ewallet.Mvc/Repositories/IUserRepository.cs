@@ -13,4 +13,7 @@ public interface IUserRepository
 
     Task<bool> TryDeleteAsync(int id, CancellationToken cancellationToken);
 
+    Task<int?> TryAddWithWalletAsync(User user, Wallet wallet, CancellationToken cancellationToken);
+
+
 }

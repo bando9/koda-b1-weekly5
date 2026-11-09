@@ -144,6 +144,54 @@ public class SqlUserRepository : IUserRepository
 
     }
 
+    public async Task<int?> TryAddWithWalletAsync(User user, Wallet wallet, CancellationToken cancellationToken)
+    {
+        const string userSql = """
+            INSERT INTO dbo.Users (Username, PasswordHash, Email, FullName, Phone, Photo)
+            OUTPUT INSERTED.Id
+            VALUES (@Username, @PasswordHash, @Email, @FullName, @Phone, @Photo);
+        """;
+
+        const string walletSql = """
+            INSERT INTO dbo.Wallets (WalletNumber, Balance, UserId)
+            VALUES (@WalletNumber, @Balance, @UserId);
+        """;
+
+        await using var connection = new SqlConnection(_connectionString);
+
+        await connection.OpenAsync(cancellationToken);
+
+        await using var transaction = (SqlTransaction)await connection.BeginTransactionAsync(cancellationToken);
+
+        try
+        {
+            await using var userCommand = new SqlCommand(userSql,connection,transaction);
+
+            AddUserParameters(userCommand,user);
+
+            var newUserId = (int)(await userCommand.ExecuteScalarAsync(cancellationToken))!;
+
+            await using var walletCommand = new SqlCommand(walletSql, connection,transaction);
+
+            walletCommand.Parameters.Add("@WalletNumber", SqlDbType.NVarChar, 20).Value = wallet.WalletNumber;
+            walletCommand.Parameters.Add("@Balance", SqlDbType.Decimal).Value = wallet.Balance;
+            walletCommand.Parameters.Add("@UserId", SqlDbType.Int).Value = newUserId;
+            await walletCommand.ExecuteNonQueryAsync(cancellationToken);
+
+            await transaction.CommitAsync(cancellationToken);
+            return newUserId;
+        }
+        catch (SqlException e) when (e.Number is 2601 or 2627)
+        {
+            await transaction.RollbackAsync(cancellationToken);
+            return null;
+        }
+        catch
+        {
+            await transaction.RollbackAsync(cancellationToken);
+            throw;
+        }
+    }
 
     // * ==================== METHOD ====================
 
