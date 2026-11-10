@@ -130,3 +130,10 @@ E:\code\koda-projects\1-task\fase-2\koda-b1-weekly5\src\Ewallet.Mvc\bin\Debug\ne
 E:\code\koda-projects\1-task\fase-2\koda-b1-weekly5\src\Ewallet.Mvc\bin\Debug\net10.0\runtimes\win-x64\native\Microsoft.Data.SqlClient.SNI.dll
 E:\code\koda-projects\1-task\fase-2\koda-b1-weekly5\src\Ewallet.Mvc\bin\Debug\net10.0\runtimes\win-x86\native\Microsoft.Data.SqlClient.SNI.dll
 E:\code\koda-projects\1-task\fase-2\koda-b1-weekly5\src\Ewallet.Mvc\obj\Debug\net10.0\Ewallet..4EB1C5A6.Up2Date
+E:\code\koda-projects\1-task\fase-2\koda-b1-weekly5\src\Ewallet.Mvc\bin\Debug\net10.0\Scalar.AspNetCore.dll
+E:\code\koda-projects\1-task\fase-2\koda-b1-weekly5\src\Ewallet.Mvc\bin\Debug\net10.0\Microsoft.AspNetCore.OpenApi.dll
+E:\code\koda-projects\1-task\fase-2\koda-b1-weekly5\src\Ewallet.Mvc\bin\Debug\net10.0\Microsoft.OpenApi.dll
+E:\code\koda-projects\1-task\fase-2\koda-b1-weekly5\src\Ewallet.Mvc\obj\Debug\net10.0\Ewallet.Mvc.MvcApplicationPartsAssemblyInfo.cs
+E:\code\koda-projects\1-task\fase-2\koda-b1-weekly5\src\Ewallet.Mvc\bin\Debug\net10.0\Swashbuckle.AspNetCore.Swagger.dll
+E:\code\koda-projects\1-task\fase-2\koda-b1-weekly5\src\Ewallet.Mvc\bin\Debug\net10.0\Swashbuckle.AspNetCore.SwaggerGen.dll
+E:\code\koda-projects\1-task\fase-2\koda-b1-weekly5\src\Ewallet.Mvc\bin\Debug\net10.0\Swashbuckle.AspNetCore.SwaggerUI.dll
