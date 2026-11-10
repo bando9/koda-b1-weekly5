@@ -105,3 +105,17 @@ ROLLBACK;
 
 select * from dbo.Transactions where ReceiverWalletId = 11269012; 
 
+
+
+SELECT
+    t.Id,
+    t.TransactionType,
+    t.Amount,
+    t.Description,
+    t.CreatedAt,
+    w.Id AS UserWalletId,
+    t.ReceiverWalletId
+FROM dbo.Transactions t
+JOIN dbo.Wallets w ON t.SenderWalletId = w.Id OR t.ReceiverWalletId = w.Id
+WHERE w.UserId = 5
+ORDER BY t.CreatedAt DESC;

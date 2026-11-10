@@ -1,5 +1,6 @@
 
 using System.Data;
+using Ewallet.Mvc.DTOs;
 using Ewallet.Mvc.Models;
 using Microsoft.Data.SqlClient;
 
@@ -191,6 +192,59 @@ public class SqlUserRepository : IUserRepository
             await transaction.RollbackAsync(cancellationToken);
             throw;
         }
+    }
+
+    public async Task<List<TransactionHistoryResponse>> GetTransactionHistoryAsync(int userId, CancellationToken cancellationToken)
+    {
+        var history = new List<TransactionHistoryResponse>();
+        await using var connection = new SqlConnection(_connectionString);
+        await connection.OpenAsync(cancellationToken);
+
+        const string sql = @"
+            SELECT
+                t.Id,
+                t.TransactionType,
+                t.Amount,
+                t.Description,
+                t.CreatedAt,
+                w.Id AS UserWalletId,
+                t.ReceiverWalletId
+            FROM dbo.Transactions t
+            JOIN dbo.Wallets w ON t.SenderWalletId = w.Id OR t.ReceiverWalletId = w.Id
+            WHERE w.UserId = @UserId
+            ORDER BY t.CreatedAt DESC;
+        ";
+
+
+        using var command = new SqlCommand(sql,connection);
+
+        command.Parameters.AddWithValue("@UserId", userId);
+
+        using (var reader = await command.ExecuteReaderAsync(cancellationToken))
+        {
+            while(await reader.ReadAsync(cancellationToken))
+            {
+                
+
+                int userWalletId = reader.GetInt32(reader.GetOrdinal("UserWalletId"));
+
+                bool isIncoming = !reader.IsDBNull(reader.GetOrdinal("ReceiverWalletId")) && 
+                                    reader.GetInt32(reader.GetOrdinal("ReceiverWalletId")) == userWalletId;
+
+                var transaction = new TransactionHistoryResponse(
+                        TransactionId: reader.GetInt32(reader.GetOrdinal("Id")),
+                        TransactionType: reader.GetString(reader.GetOrdinal("TransactionType")),
+                        Amount: reader.GetDecimal(reader.GetOrdinal("Amount")),
+                        Description: reader.IsDBNull(reader.GetOrdinal("Description")) ? null : reader.GetString(reader.GetOrdinal("Description")),
+                        CreatedAt: reader.GetDateTime(reader.GetOrdinal("CreatedAt")),
+                        IsIncoming: isIncoming
+                    );
+
+                    history.Add(transaction);
+            }
+        }
+
+        return history;
     }
 
     // * ==================== METHOD ====================

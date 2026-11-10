@@ -10,4 +10,6 @@ public interface IUserService
     Task<UserResponse?> UpdateAsync(int id, UpdateUserRequest request, CancellationToken cancellationToken);
 
     Task<bool> DeleteAsync(int id, CancellationToken cancellationToken);
+
+    Task<List<TransactionHistoryResponse>> GetTransactionHistoryResponsesAsync(int userId,CancellationToken cancellationToken);
 }

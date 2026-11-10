@@ -77,9 +77,16 @@ public sealed class UserService : IUserService
         return updated ? UserResponse.FromModel(existingUser) : null;
     }
 
+
+    public async Task<List<TransactionHistoryResponse>> GetTransactionHistoryResponsesAsync(int userId,CancellationToken cancellationToken)
+    {
+        var transactions = await _repository.GetTransactionHistoryAsync(userId,cancellationToken);
+        return transactions; 
+    }
+
     private static string GenerateWalletNumber()
-{
-    return string.Concat(Enumerable.Range(0, 12)
-        .Select(_ => RandomNumberGenerator.GetInt32(0, 10)));
-}
+    {
+        return string.Concat(Enumerable.Range(0, 12)
+            .Select(_ => RandomNumberGenerator.GetInt32(0, 10)));
+    }
 }

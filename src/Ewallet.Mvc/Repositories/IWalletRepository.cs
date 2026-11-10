@@ -1,3 +1,4 @@
+using Ewallet.Mvc.DTOs;
 using Ewallet.Mvc.Models;
 using Microsoft.Data.SqlClient;
 
@@ -13,5 +14,5 @@ public interface IWalletRepository
 
 }
 
-
+ 
 

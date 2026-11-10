@@ -96,6 +96,7 @@ public sealed class UsersController : ControllerBase
         }
     }
 
+    // *Delete by Id
     [HttpDelete("{id}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
@@ -108,4 +109,29 @@ public sealed class UsersController : ControllerBase
             title: "User not found",
             detail: $"No user was found for ID {id}.");
     }
+
+
+    // *Get TransactionHistory by UserId
+    [HttpGet("{id}/transactions")]
+    [ProducesResponseType(typeof(List<TransactionHistoryResponse>),StatusCodes.Status200OK)]
+    public async Task<ActionResult<List<TransactionHistoryResponse>>> GetTransactionHistory(
+        [FromRoute] int id, CancellationToken cancellationToken
+    )
+    {
+        try
+        {
+            var history = await _service.GetTransactionHistoryResponsesAsync(id,cancellationToken);
+
+            return Ok(history);
+        }
+        catch(Exception e)
+        {
+            return Problem(
+                statusCode:StatusCodes.Status500InternalServerError,
+                title: "Terjadi kesalahan saat mengambil data transaksi",
+                detail: e.Message
+            );
+        }
+    }
+
 }

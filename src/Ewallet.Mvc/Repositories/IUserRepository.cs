@@ -1,3 +1,4 @@
+using Ewallet.Mvc.DTOs;
 using Ewallet.Mvc.Models;
 
 namespace Ewallet.Mvc.Repositories;
@@ -15,5 +16,8 @@ public interface IUserRepository
 
     Task<int?> TryAddWithWalletAsync(User user, Wallet wallet, CancellationToken cancellationToken);
 
+    Task<List<TransactionHistoryResponse>> GetTransactionHistoryAsync(int userId, CancellationToken cancellationToken);
+
+    
 
 }

@@ -12,6 +12,10 @@ Accept: application/json
 GET {{baseUrl}}/api/v1/users/11
 Accept: application/json
 
+### Get Transactions
+GET {{baseUrl}}/api/v1/users/5/transactions
+Accept: application/json
+ 
 ### Register user + wallet
 POST {{baseUrl}}/api/v1/users/
 Accept: application/json
@@ -63,3 +67,4 @@ Content-Type: application/json
 ### Get wallet by user Id
 GET {{baseUrl}}/api/v1/wallets/5
 Accept: application/json
+
