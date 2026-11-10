@@ -6,4 +6,6 @@ public interface IWalletService
 {
     Task<WalletResponse?> GetByUserIdAsync(int userId, CancellationToken cancellationToken);
     Task<TopUpResponse> TopUpAsync(int userId, TopUpRequest request,CancellationToken cancellationToken);
+
+    Task<TransferResponse> TransferAsync(int senderUserId, TransferRequest request, CancellationToken cancellationToken);
 }

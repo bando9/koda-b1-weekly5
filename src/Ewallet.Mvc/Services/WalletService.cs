@@ -43,4 +43,58 @@ public sealed class WalletService : IWalletService
             CreatedAt: DateTime.UtcNow
         );
     }
+
+
+    public async Task<TransferResponse> TransferAsync(
+    int senderUserId,
+    TransferRequest request,
+    CancellationToken cancellationToken)
+    {
+        if (senderUserId <= 0)
+            throw new ArgumentException("User pengirim tidak valid.");
+
+        if (request.Amount < 1)
+            throw new ArgumentException("Nominal transfer minimal Rp1.");
+
+        if (string.IsNullOrWhiteSpace(request.ReceiverWalletNumber))
+            throw new ArgumentException("Nomor wallet tujuan wajib diisi.");
+
+        var senderWallet = await _walletRepository.GetByUserId(
+            senderUserId,
+            cancellationToken
+        );
+
+        if (senderWallet is null)
+            throw new InvalidOperationException("Wallet pengirim tidak ditemukan.");
+
+        var receiverWallet = await _walletRepository.GetByWalletNumberAsync(
+            request.ReceiverWalletNumber.Trim(),
+            cancellationToken
+        );
+
+        if (receiverWallet is null)
+            throw new ArgumentException("Wallet penerima tidak ditemukan.");
+
+        if (senderWallet.Id == receiverWallet.Id)
+            throw new ArgumentException("Tidak dapat transfer ke wallet sendiri.");
+
+        var result = await _walletRepository.ProcessTransferAsync(
+            senderUserId,
+            request.ReceiverWalletNumber.Trim(),
+            request.Amount,
+            request.Description,
+            cancellationToken
+        );
+
+        return new TransferResponse(
+            TransactionId: result.TransactionId,
+            SenderWalletNumber: result.SenderWalletNumber,
+            ReceiverWalletNumber: result.ReceiverWalletNumber,
+            Amount: request.Amount,
+            SenderNewBalance: result.SenderNewBalance,
+            CreatedAt: result.CreatedAt
+        );
+    }
+
+
 }

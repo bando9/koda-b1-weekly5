@@ -52,4 +52,43 @@ public sealed class WalletsController : ControllerBase
             );
         }
     }
+
+
+    [HttpPost("{userId}/transfers")]
+    [ProducesResponseType(typeof(TransferResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<TransferResponse>> Transfer(
+        [FromRoute] int userId,
+        [FromBody] TransferRequest request,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            var result = await _service.TransferAsync(
+                userId,
+                request,
+                cancellationToken
+            );
+
+            return Ok(result);
+        }
+        catch (ArgumentException ex)
+        {
+            return Problem(
+                statusCode: StatusCodes.Status400BadRequest,
+                title: "Invalid transfer request",
+                detail: ex.Message
+            );
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Problem(
+                statusCode: StatusCodes.Status400BadRequest,
+                title: "Transfer failed",
+                detail: ex.Message
+            );
+        }
+    }
+
 }

@@ -1,0 +1,67 @@
+
+@model Ewallet.Mvc.ViewModels.TransferViewModel
+
+@{
+    ViewData["Title"] = "Konfirmasi Transfer";
+}
+
+<h2>Konfirmasi Transfer</h2>
+
+<p>Periksa kembali detail transaksi berikut.</p>
+
+<div class="card">
+    <div class="card-body">
+        <p>
+            <strong>Pengirim</strong><br />
+            @Model.FullName
+        </p>
+
+        <p>
+            <strong>Nomor Wallet Pengirim</strong><br />
+            @Model.SenderWalletNumber
+        </p>
+
+        <p>
+            <strong>Nomor Wallet Tujuan</strong><br />
+            @Model.ReceiverWalletNumber
+        </p>
+
+        <p>
+            <strong>Nominal Transfer</strong><br />
+            Rp@(Model.Amount.ToString("N0"))
+        </p>
+
+        <p>
+            <strong>Catatan</strong><br />
+            @(string.IsNullOrWhiteSpace(Model.Description)
+                ? "-"
+                : Model.Description)
+        </p>
+    </div>
+</div>
+
+<form asp-controller="Wallet"
+      asp-action="ConfirmTransfer"
+      asp-route-id="@Model.UserId"
+      method="post">
+
+    @Html.AntiForgeryToken()
+
+    <input type="hidden" asp-for="ReceiverWalletNumber" />
+    <input type="hidden" asp-for="Amount" />
+    <input type="hidden" asp-for="Description" />
+
+    <div asp-validation-summary="ModelOnly"
+         class="text-danger"></div>
+
+    <button type="submit" class="btn btn-success">
+        Konfirmasi dan Transfer
+    </button>
+
+    <a asp-controller="Wallet"
+       asp-action="Transfer"
+       asp-route-id="@Model.UserId"
+       class="btn btn-secondary">
+        Kembali
+    </a>
+</form>

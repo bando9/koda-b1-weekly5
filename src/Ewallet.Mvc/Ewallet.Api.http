@@ -68,3 +68,12 @@ Content-Type: application/json
 GET {{baseUrl}}/api/v1/wallets/5
 Accept: application/json
 
+### Transfer
+POST {{baseUrl}}/api/v1/wallets/5/transfers
+Content-Type: application/json
+
+{
+    "receiverWalletNumber": "28913819",
+    "amount": 50000,
+    "description": "Transfer untuk testing"
+}

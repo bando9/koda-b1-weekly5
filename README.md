@@ -153,7 +153,8 @@ dotnet run
 
 ### Transfer
 
-![Transfer](docs/screenshots/transfer.png)
+![Confirm](/images/confirm.png)
+![Transfer](/images/tf.png)
 
 ### Transaction History
 

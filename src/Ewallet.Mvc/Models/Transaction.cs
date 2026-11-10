@@ -4,7 +4,8 @@ namespace Ewallet.Mvc.Models;
 public enum TransactionTypeEnum
 {
     Income, 
-    Expense
+    Expense,
+    Transfer
 }
 
 public class Transaction {

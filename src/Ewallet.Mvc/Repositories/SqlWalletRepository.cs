@@ -114,6 +114,31 @@ public class SqlWalletRepository : IWalletRepository
         }
     }
 
+    public async Task<Wallet?> GetByWalletNumberAsync(
+    string walletNumber,
+    CancellationToken cancellationToken)
+    {
+        const string sql = """
+            SELECT Id, WalletNumber, Balance, UserId
+            FROM dbo.Wallets
+            WHERE WalletNumber = @WalletNumber;
+            """;
+
+        await using var connection = new SqlConnection(_connectionString);
+        await connection.OpenAsync(cancellationToken);
+
+        await using var command = new SqlCommand(sql, connection);
+
+        command.Parameters.Add("@WalletNumber", SqlDbType.NVarChar, 20)
+            .Value = walletNumber;
+
+        await using var reader = await command.ExecuteReaderAsync(cancellationToken);
+
+        if (!await reader.ReadAsync(cancellationToken))
+            return null;
+
+        return ReadWallet(reader);
+    }
 
     private static Wallet ReadWallet(SqlDataReader reader)
     {
@@ -125,4 +150,206 @@ public class SqlWalletRepository : IWalletRepository
         );
     }
 
+
+    public async Task<(
+    int TransactionId,
+    string SenderWalletNumber,
+    string ReceiverWalletNumber,
+    decimal SenderNewBalance,
+    DateTime CreatedAt
+    )> ProcessTransferAsync(
+        int senderUserId,
+        string receiverWalletNumber,
+        decimal amount,
+        string? description,
+        CancellationToken cancellationToken)
+    {
+        await using var connection = new SqlConnection(_connectionString);
+        await connection.OpenAsync(cancellationToken);
+
+        using var transaction =
+            connection.BeginTransaction(IsolationLevel.Serializable);
+
+        try
+        {
+            int senderWalletId = 0;
+            int receiverWalletId = 0;
+
+            string senderNumber = string.Empty;
+            string receiverNumber = string.Empty;
+
+            decimal senderBalance = 0;
+
+            const string getWalletsSql = """
+                SELECT Id, WalletNumber, Balance, UserId
+                FROM dbo.Wallets WITH (UPDLOCK, HOLDLOCK)
+                WHERE UserId = @SenderUserId
+                OR WalletNumber = @ReceiverWalletNumber;
+                """;
+
+            await using (var command = new SqlCommand(
+                getWalletsSql, connection, transaction))
+            {
+                command.Parameters.Add("@SenderUserId", SqlDbType.Int)
+                    .Value = senderUserId;
+
+                command.Parameters.Add("@ReceiverWalletNumber", SqlDbType.NVarChar, 20)
+                    .Value = receiverWalletNumber;
+
+                await using var reader =
+                    await command.ExecuteReaderAsync(cancellationToken);
+
+                while (await reader.ReadAsync(cancellationToken))
+                {
+                    int walletId = reader.GetInt32(reader.GetOrdinal("Id"));
+                    string walletNumber = reader.GetString(
+                        reader.GetOrdinal("WalletNumber"));
+                    decimal balance = reader.GetDecimal(
+                        reader.GetOrdinal("Balance"));
+                    int userId = reader.GetInt32(reader.GetOrdinal("UserId"));
+
+                    if (userId == senderUserId)
+                    {
+                        senderWalletId = walletId;
+                        senderNumber = walletNumber;
+                        senderBalance = balance;
+                    }
+
+                    if (walletNumber == receiverWalletNumber)
+                    {
+                        receiverWalletId = walletId;
+                        receiverNumber = walletNumber;
+                    }
+                }
+            }
+
+            if (senderWalletId == 0)
+                throw new InvalidOperationException("Wallet pengirim tidak ditemukan.");
+
+            if (receiverWalletId == 0)
+                throw new ArgumentException("Wallet penerima tidak ditemukan.");
+
+            if (senderWalletId == receiverWalletId)
+                throw new ArgumentException("Tidak dapat transfer ke wallet sendiri.");
+
+            if (senderBalance < amount)
+                throw new InvalidOperationException("Saldo tidak mencukupi.");
+
+            const string debitSql = """
+                UPDATE dbo.Wallets
+                SET Balance = Balance - @Amount,
+                    Updated = @Now
+                WHERE Id = @SenderWalletId
+                AND Balance >= @Amount;
+                """;
+
+            await using (var command = new SqlCommand(
+                debitSql, connection, transaction))
+            {
+                command.Parameters.Add("@Amount", SqlDbType.Decimal)
+                    .Value = amount;
+
+                command.Parameters["@Amount"].Precision = 18;
+                command.Parameters["@Amount"].Scale = 2;
+
+                command.Parameters.Add("@Now", SqlDbType.DateTime2)
+                    .Value = DateTime.UtcNow;
+
+                command.Parameters.Add("@SenderWalletId", SqlDbType.Int)
+                    .Value = senderWalletId;
+
+                int affectedRows =
+                    await command.ExecuteNonQueryAsync(cancellationToken);
+
+                if (affectedRows != 1)
+                    throw new InvalidOperationException("Saldo tidak mencukupi.");
+            }
+
+            const string creditSql = """
+                UPDATE dbo.Wallets
+                SET Balance = Balance + @Amount,
+                    Updated = @Now
+                WHERE Id = @ReceiverWalletId;
+                """;
+
+            await using (var command = new SqlCommand(
+                creditSql, connection, transaction))
+            {
+                command.Parameters.Add("@Amount", SqlDbType.Decimal)
+                    .Value = amount;
+
+                command.Parameters["@Amount"].Precision = 18;
+                command.Parameters["@Amount"].Scale = 2;
+
+                command.Parameters.Add("@Now", SqlDbType.DateTime2)
+                    .Value = DateTime.UtcNow;
+
+                command.Parameters.Add("@ReceiverWalletId", SqlDbType.Int)
+                    .Value = receiverWalletId;
+
+                await command.ExecuteNonQueryAsync(cancellationToken);
+            }
+
+            const string insertTransactionSql = """
+                INSERT INTO dbo.Transactions
+                    (SenderWalletId, ReceiverWalletId, Amount,
+                    TransactionType, Description, CreatedAt)
+                OUTPUT INSERTED.Id, INSERTED.CreatedAt
+                VALUES
+                    (@SenderWalletId, @ReceiverWalletId, @Amount,
+                    @TransactionType, @Description, @CreatedAt);
+                """;
+
+            int transactionId;
+            DateTime createdAt = DateTime.UtcNow;
+
+            await using (var command = new SqlCommand(
+                insertTransactionSql, connection, transaction))
+            {
+                command.Parameters.Add("@SenderWalletId", SqlDbType.Int)
+                    .Value = senderWalletId;
+
+                command.Parameters.Add("@ReceiverWalletId", SqlDbType.Int)
+                    .Value = receiverWalletId;
+
+                command.Parameters.Add("@Amount", SqlDbType.Decimal)
+                    .Value = amount;
+
+                command.Parameters["@Amount"].Precision = 18;
+                command.Parameters["@Amount"].Scale = 2;
+
+                command.Parameters.Add("@TransactionType", SqlDbType.NVarChar, 20)
+                    .Value = "Transfer";
+
+                command.Parameters.Add("@Description", SqlDbType.NVarChar, 150)
+                    .Value = (object?)description ?? DBNull.Value;
+
+                command.Parameters.Add("@CreatedAt", SqlDbType.DateTime2)
+                    .Value = createdAt;
+
+                await using var reader =
+                    await command.ExecuteReaderAsync(cancellationToken);
+
+                await reader.ReadAsync(cancellationToken);
+
+                transactionId = reader.GetInt32(0);
+                createdAt = reader.GetDateTime(1);
+            }
+
+            await transaction.CommitAsync(cancellationToken);
+
+            return (
+                transactionId,
+                senderNumber,
+                receiverNumber,
+                senderBalance - amount,
+                createdAt
+            );
+        }
+        catch
+        {
+            await transaction.RollbackAsync(CancellationToken.None);
+            throw;
+        }
+    }
 }

@@ -69,16 +69,16 @@ FROM @InsertedUsers u;
 
 
 
-CREATE TABLE dbo.Transactions(
-    Id INT IDENTITY(1,1) PRIMARY KEY,
-    SenderWalletId INT NULL,
-    ReceiverWalletId INT NOT NULL,
-    Amount DECIMAL(18,2) NOT NULL CHECK(Amount >=1),
-    TransactionType NVARCHAR(20) NOT NULL,
-    Description NVARCHAR(150) NULL,
-    CreatedAt DATETIME2 NOT NULL DEFAULT GETDATE(),
-)
-GO
+    CREATE TABLE dbo.Transactions(
+        Id INT IDENTITY(1,1) PRIMARY KEY,
+        SenderWalletId INT NULL,
+        ReceiverWalletId INT NOT NULL,
+        Amount DECIMAL(18,2) NOT NULL CHECK(Amount >=1),
+        TransactionType NVARCHAR(20) NOT NULL,
+        Description NVARCHAR(150) NULL,
+        CreatedAt DATETIME2 NOT NULL DEFAULT GETDATE(),
+    )
+    GO
 
 select * From dbo.Users;
 select * From dbo.Wallets;
@@ -132,3 +132,7 @@ FROM dbo.Users u
 LEFT JOIN dbo.Wallets w
     ON u.Id = w.UserId
 ORDER BY u.Id;
+
+
+EXEC sp_help 'dbo.Wallets';
+EXEC sp_help 'dbo.Transactions';

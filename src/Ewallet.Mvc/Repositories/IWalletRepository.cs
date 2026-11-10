@@ -12,6 +12,25 @@ public interface IWalletRepository
 
     Task<Wallet?> GetByUserId(int userId, CancellationToken cancellationToken);
 
+    Task<Wallet?> GetByWalletNumberAsync(
+    string walletNumber,
+    CancellationToken cancellationToken
+    );
+
+    Task<(
+        int TransactionId,
+        string SenderWalletNumber,
+        string ReceiverWalletNumber,
+        decimal SenderNewBalance,
+        DateTime CreatedAt
+    )> ProcessTransferAsync(
+        int senderUserId,
+        string receiverWalletNumber,
+        decimal amount,
+        string? description,
+        CancellationToken cancellationToken
+    );
+
 }
 
  

@@ -169,4 +169,110 @@ public class WalletController : Controller
             return View(model);
         }
     }
+
+
+    [HttpGet]
+    public async Task<IActionResult> Transfer(
+        int id,
+        CancellationToken cancellationToken)
+    {
+        var user = await _userService.GetByIdAsync(id, cancellationToken);
+        if (user is null) return NotFound("User tidak ditemukan.");
+
+        var wallet = await _walletService.GetByUserIdAsync(id, cancellationToken);
+        if (wallet is null) return NotFound("Wallet tidak ditemukan.");
+
+        var viewModel = new TransferViewModel
+        {
+            UserId = user.Id,
+            FullName = user.FullName,
+            SenderWalletNumber = wallet.WalletNumber
+        };
+
+        return View(viewModel);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Transfer(
+        int id,
+        TransferViewModel model,
+        CancellationToken cancellationToken)
+    {
+        var user = await _userService.GetByIdAsync(id, cancellationToken);
+        if (user is null) return NotFound("User tidak ditemukan.");
+
+        var wallet = await _walletService.GetByUserIdAsync(id, cancellationToken);
+        if (wallet is null) return NotFound("Wallet tidak ditemukan.");
+
+        // Ambil ulang informasi pengirim dari database.
+        model.UserId = user.Id;
+        model.FullName = user.FullName;
+        model.SenderWalletNumber = wallet.WalletNumber;
+
+        if (!ModelState.IsValid)
+            return View(model);
+
+        // Belum memproses saldo.
+        // Hanya menampilkan halaman konfirmasi.
+        return View("ConfirmTransfer", model);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ConfirmTransfer(
+        int id,
+        TransferViewModel model,
+        CancellationToken cancellationToken)
+    {
+        var user = await _userService.GetByIdAsync(id, cancellationToken);
+        if (user is null) return NotFound("User tidak ditemukan.");
+
+        var wallet = await _walletService.GetByUserIdAsync(id, cancellationToken);
+        if (wallet is null) return NotFound("Wallet tidak ditemukan.");
+
+        model.UserId = user.Id;
+        model.FullName = user.FullName;
+        model.SenderWalletNumber = wallet.WalletNumber;
+
+        if (!ModelState.IsValid)
+            return View("Transfer", model);
+
+        try
+        {
+            var request = new TransferRequest(
+                model.ReceiverWalletNumber,
+                model.Amount,
+                model.Description
+            );
+
+            await _walletService.TransferAsync(
+                id,
+                request,
+                cancellationToken
+            );
+
+            TempData["SuccessMessage"] =
+                $"Transfer sebesar Rp{model.Amount:N0} berhasil diproses.";
+
+            return RedirectToAction(nameof(Details), new { id });
+        }
+        catch (ArgumentException ex)
+        {
+            ModelState.AddModelError(
+                nameof(model.ReceiverWalletNumber),
+                ex.Message
+            );
+
+            return View("Transfer", model);
+        }
+        catch (InvalidOperationException ex)
+        {
+            ModelState.AddModelError(string.Empty, ex.Message);
+            return View("Transfer", model);
+        }
+    }
+
+
+
 }

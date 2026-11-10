@@ -1,0 +1,77 @@
+
+@model Ewallet.Mvc.ViewModels.TransferViewModel
+
+@{
+    ViewData["Title"] = "Transfer";
+}
+
+<h2>Transfer Saldo</h2>
+
+<p>Pengirim: <strong>@Model.FullName</strong></p>
+<p>Nomor Wallet: <strong>@Model.SenderWalletNumber</strong></p>
+
+<form asp-controller="Wallet"
+      asp-action="Transfer"
+      asp-route-id="@Model.UserId"
+      method="post">
+
+    @Html.AntiForgeryToken()
+
+    <div asp-validation-summary="ModelOnly"
+         class="text-danger"></div>
+
+    <div class="mb-3">
+        <label asp-for="ReceiverWalletNumber"
+               class="form-label">Nomor Wallet Tujuan</label>
+
+        <input asp-for="ReceiverWalletNumber"
+               class="form-control"
+               placeholder="Masukkan nomor wallet penerima" />
+
+        <span asp-validation-for="ReceiverWalletNumber"
+              class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Amount"
+               class="form-label">Nominal Transfer (Rp)</label>
+
+        <input asp-for="Amount"
+               type="number"
+               min="1"
+               step="1"
+               class="form-control"
+               placeholder="Contoh: 50000" />
+
+        <span asp-validation-for="Amount"
+              class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Description"
+               class="form-label">Catatan (Opsional)</label>
+
+        <textarea asp-for="Description"
+                  class="form-control"
+                  rows="3"
+                  placeholder="Contoh: Pembayaran makan"></textarea>
+
+        <span asp-validation-for="Description"
+              class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">
+        Lanjutkan
+    </button>
+
+    <a asp-controller="Wallet"
+       asp-action="Details"
+       asp-route-id="@Model.UserId"
+       class="btn btn-secondary">
+        Batal
+    </a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
