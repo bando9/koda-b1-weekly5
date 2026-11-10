@@ -31,7 +31,7 @@ Content-Type: application/json
 }
 
 ### Delete user
-DELETE  {{baseUrl}}/api/v1/users/10
+DELETE  {{baseUrl}}/api/v1/users/12
 Accept: application/json
 
 ### Update user by id

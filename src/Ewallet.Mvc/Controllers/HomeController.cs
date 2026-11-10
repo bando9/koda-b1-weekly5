@@ -1,14 +1,24 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Ewallet.Mvc.Models;
+using Ewallet.Mvc.Services;
 
 namespace Ewallet.Mvc.Controllers;
 
 public class HomeController : Controller
 {
-    public IActionResult Index()
+    private readonly IUserService _userService;
+
+    public HomeController(IUserService userService)
     {
-        return View();
+        _userService = userService;
+    }
+
+    public async Task<IActionResult> Index(CancellationToken cancellationToken)
+    {
+        var users = await _userService.GetAllAsync(cancellationToken);
+
+        return View(users);
     }
 
     public IActionResult Privacy()
@@ -21,4 +31,7 @@ public class HomeController : Controller
     {
         return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
     }
+
+
+    
 }

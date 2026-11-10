@@ -114,8 +114,21 @@ SELECT
     t.Description,
     t.CreatedAt,
     w.Id AS UserWalletId,
-    t.ReceiverWalletId
+    t.ReceiverWalletId,
+    t.SenderWalletId
 FROM dbo.Transactions t
 JOIN dbo.Wallets w ON t.SenderWalletId = w.Id OR t.ReceiverWalletId = w.Id
-WHERE w.UserId = 5
+WHERE w.UserId = 11
 ORDER BY t.CreatedAt DESC;
+
+
+SELECT
+    u.Id AS UserId,
+    u.FullName,
+    w.Id AS WalletId,
+    w.WalletNumber,
+    w.Balance
+FROM dbo.Users u
+LEFT JOIN dbo.Wallets w
+    ON u.Id = w.UserId
+ORDER BY u.Id;

@@ -1,0 +1,153 @@
+@model Ewallet.Mvc.ViewModels.TransactionHistoryViewModel
+@using System.Globalization
+
+@{
+    ViewData["Title"] = "Transaction History";
+
+    var idr = new CultureInfo("id-ID");
+}
+
+<div class="container mt-5">
+
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2>Transaction History</h2>
+            <p class="text-muted mb-0">
+                @Model.FullName · @Model.WalletNumber
+            </p>
+        </div>
+
+        <a asp-controller="Wallet"
+           asp-action="Details"
+           asp-route-id="@Model.UserId"
+           class="btn btn-outline-secondary">
+            Back to Dashboard
+        </a>
+    </div>
+
+    <!-- Filter -->
+    <div class="d-flex gap-2 mb-4">
+
+        <a asp-action="History"
+           asp-route-id="@Model.UserId"
+           asp-route-filter="all"
+           class="btn @(Model.Filter == "all"
+               ? "btn-primary"
+               : "btn-outline-primary")">
+            All
+        </a>
+
+        <a asp-action="History"
+           asp-route-id="@Model.UserId"
+           asp-route-filter="income"
+           class="btn @(Model.Filter == "income"
+               ? "btn-success"
+               : "btn-outline-success")">
+            Income
+        </a>
+
+        <a asp-action="History"
+           asp-route-id="@Model.UserId"
+           asp-route-filter="expense"
+           class="btn @(Model.Filter == "expense"
+               ? "btn-danger"
+               : "btn-outline-danger")">
+            Expense
+        </a>
+
+    </div>
+
+    <!-- Transaction Table -->
+    <div class="card shadow-sm">
+
+        <div class="card-header bg-white py-3">
+            <h5 class="mb-0">Transactions</h5>
+        </div>
+
+        <div class="card-body p-0">
+
+            @if (Model.Transactions.Count == 0)
+            {
+                <div class="text-center p-5">
+                    <h6>No transactions found.</h6>
+                    <p class="text-muted mb-0">
+                        Your transaction history will appear here.
+                    </p>
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+
+                    <table class="table table-hover align-middle mb-0">
+
+                        <thead class="table-light">
+                            <tr>
+                                <th>Date</th>
+                                <th>Description</th>
+                                <th>Type</th>
+                                <th class="text-end">Amount</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            @foreach (var transaction in Model.Transactions)
+                            {
+                                <tr>
+                                    <td>
+                                        <div>
+                                            @transaction.CreatedAt.ToString("dd MMM yyyy")
+                                        </div>
+                                        <small class="text-muted">
+                                            @transaction.CreatedAt.ToString("HH:mm")
+                                        </small>
+                                    </td>
+
+                                    <td>
+                                        @(transaction.Description ?? "-")
+                                    </td>
+
+                                    <td>
+                                        @if (transaction.IsIncoming)
+                                        {
+                                            <span class="badge bg-success">
+                                                Income
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-danger">
+                                                Expense
+                                            </span>
+                                        }
+                                    </td>
+
+                                    <td class="text-end fw-semibold
+                                        @(transaction.IsIncoming
+                                            ? "text-success"
+                                            : "text-danger")">
+
+                                        @(transaction.IsIncoming ? "+" : "-")
+                                        @transaction.Amount.ToString("C0", idr)
+
+                                    </td>
+                                </tr>
+                            }
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+            }
+
+        </div>
+    </div>
+
+    <p class="text-muted mt-3">
+        Showing @Model.Transactions.Count transaction(s).
+    </p>
+
+</div>

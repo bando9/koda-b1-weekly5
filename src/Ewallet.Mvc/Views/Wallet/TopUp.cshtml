@@ -1,0 +1,100 @@
+@model Ewallet.Mvc.ViewModels.TopUpViewModel
+
+@{
+    ViewData["Title"] = "Top Up Wallet";
+}
+
+<div class="container mt-5">
+
+    <div class="mb-4">
+        <h2>Top Up Wallet</h2>
+        <p class="text-muted">
+            Add balance to your wallet.
+        </p>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body p-4">
+
+            <div class="mb-4">
+                <label class="form-label text-muted">
+                    Wallet Owner
+                </label>
+
+                <h5>@Model.FullName</h5>
+
+                <label class="form-label text-muted mt-2">
+                    Wallet Number
+                </label>
+
+                <h5>@Model.WalletNumber</h5>
+            </div>
+
+            <hr />
+
+            <form asp-controller="Wallet"
+                  asp-action="TopUp"
+                  asp-route-id="@Model.UserId"
+                  method="post">
+
+                <div class="mb-3">
+                    <label asp-for="Amount"
+                           class="form-label">
+                        Top Up Amount (Rp)
+                    </label>
+
+                    <input asp-for="Amount"
+                           type="number"
+                           min="1"
+                           step="1000"
+                           class="form-control"
+                           placeholder="Enter amount" />
+
+                    <span asp-validation-for="Amount"
+                          class="text-danger">
+                    </span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Description"
+                           class="form-label">
+                        Description
+                    </label>
+
+                    <textarea asp-for="Description"
+                              class="form-control"
+                              rows="3"
+                              placeholder="Example: Top up for lunch">
+                    </textarea>
+
+                    <span asp-validation-for="Description"
+                          class="text-danger">
+                    </span>
+                </div>
+
+                <div class="d-flex gap-2 mt-4">
+
+                    <button type="submit"
+                            class="btn btn-primary">
+                        Confirm Top Up
+                    </button>
+
+                    <a asp-controller="Wallet"
+                       asp-action="Details"
+                       asp-route-id="@Model.UserId"
+                       class="btn btn-outline-secondary">
+                        Cancel
+                    </a>
+
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
