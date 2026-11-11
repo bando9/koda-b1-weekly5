@@ -41,15 +41,20 @@ public sealed class WalletsController : ControllerBase
         {
             var created = await _service.TopUpAsync( userId, request, cancellationToken);
 
-            return created is null ? Problem(
-                    statusCode: StatusCodes.Status404NotFound,title: "data not found"
-                ) : Ok(created);
+            return StatusCode(StatusCodes.Status201Created, created);
         }
         catch (ArgumentException e)
         {
             return Problem(
                 statusCode: StatusCodes.Status400BadRequest,title:"Invalid top up amount", detail:e.Message
             );
+        }
+         catch (InvalidOperationException e)
+        {
+            return Problem(
+                statusCode: StatusCodes.Status404NotFound,
+                title: "Wallet not found",
+                detail: e.Message);
         }
     }
 
