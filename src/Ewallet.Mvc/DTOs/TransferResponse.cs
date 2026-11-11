@@ -7,4 +7,4 @@ public record TransferResponse(
     decimal Amount,
     decimal SenderNewBalance,
     DateTime CreatedAt
-);
+); 
