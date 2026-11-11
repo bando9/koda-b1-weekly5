@@ -205,7 +205,6 @@ public class WalletController : Controller
         var wallet = await _walletService.GetByUserIdAsync(id, cancellationToken);
         if (wallet is null) return NotFound("Wallet tidak ditemukan.");
 
-        // Ambil ulang informasi pengirim dari database.
         model.UserId = user.Id;
         model.FullName = user.FullName;
         model.SenderWalletNumber = wallet.WalletNumber;
@@ -213,8 +212,6 @@ public class WalletController : Controller
         if (!ModelState.IsValid)
             return View(model);
 
-        // Belum memproses saldo.
-        // Hanya menampilkan halaman konfirmasi.
         return View("ConfirmTransfer", model);
     }
 

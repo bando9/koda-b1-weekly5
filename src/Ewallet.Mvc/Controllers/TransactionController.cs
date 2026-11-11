@@ -23,7 +23,6 @@ public class TransactionController : Controller
         string filter = "all",
         CancellationToken cancellationToken = default)
     {
-        // 1. Validasi user
         var user = await _userService.GetByIdAsync(
             id,
             cancellationToken
@@ -32,7 +31,6 @@ public class TransactionController : Controller
         if (user is null)
             return NotFound("User tidak ditemukan.");
 
-        // 2. Ambil wallet
         var wallet = await _walletService.GetByUserIdAsync(
             id,
             cancellationToken
@@ -41,14 +39,12 @@ public class TransactionController : Controller
         if (wallet is null)
             return NotFound("Wallet tidak ditemukan.");
 
-        // 3. Ambil seluruh transaksi
         var transactions = await _userService
             .GetTransactionHistoryResponsesAsync(
                 id,
                 cancellationToken
             );
 
-        // 4. Validasi filter
         filter = filter.ToLowerInvariant();
 
         if (filter is not ("all" or "income" or "expense"))
@@ -56,7 +52,6 @@ public class TransactionController : Controller
             filter = "all";
         }
 
-        // 5. Terapkan filter
         var filteredTransactions = filter switch
         {
             "income" => transactions
@@ -70,7 +65,6 @@ public class TransactionController : Controller
             _ => transactions
         };
 
-        // 6. Siapkan ViewModel
         var viewModel = new TransactionHistoryViewModel
         {
             UserId = user.Id,

@@ -28,7 +28,9 @@ public sealed class WalletService : IWalletService
 
     public async Task<TopUpResponse> TopUpAsync(int userId, TopUpRequest request, CancellationToken cancellationToken)
     {
-        if (request.Amount <= 0)
+        if(userId <=0 ) throw new ArgumentException("User Id tidak valid.");
+
+        if (request.Amount < 1)
         {
             throw new ArgumentException("Top up minimal 1, gabisa dibawah itu.");
         }
@@ -40,7 +42,7 @@ public sealed class WalletService : IWalletService
             WalletNumber: result.WalletNumber,
             TopUpAmount: request.Amount,
             NewBalance: result.NewBalance,
-            CreatedAt: DateTime.UtcNow
+            CreatedAt: result.CreatedAt
         );
     }
 

@@ -31,7 +31,7 @@ CREATE TABLE dbo.Wallets(
     WalletNumber NVARCHAR(20) NOT NULL UNIQUE,
     Balance DECIMAL(18,2) NOT NULL DEFAULT 0 CHECK (Balance>=0),
     CreatedAt DATETIME2 NOT NULL DEFAULT GETDATE(),
-    Updated DATETIME2 NULL DEFAULT GETDATE()
+    Updated DATETIME2 NULL DEFAULT GETDATE(),
 
     CONSTRAINT FK_Wallet_Users FOREIGN KEY (Userid) REFERENCES dbo.Users(Id)
 )
@@ -69,16 +69,19 @@ FROM @InsertedUsers u;
 
 
 
-    CREATE TABLE dbo.Transactions(
-        Id INT IDENTITY(1,1) PRIMARY KEY,
-        SenderWalletId INT NULL,
-        ReceiverWalletId INT NOT NULL,
-        Amount DECIMAL(18,2) NOT NULL CHECK(Amount >=1),
-        TransactionType NVARCHAR(20) NOT NULL,
-        Description NVARCHAR(150) NULL,
-        CreatedAt DATETIME2 NOT NULL DEFAULT GETDATE(),
-    )
-    GO
+CREATE TABLE dbo.Transactions(
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+    SenderWalletId INT NULL,
+    ReceiverWalletId INT NOT NULL,
+    Amount DECIMAL(18,2) NOT NULL CHECK(Amount >=1),
+    TransactionType NVARCHAR(20) NOT NULL,
+    Description NVARCHAR(150) NULL,
+    CreatedAt DATETIME2 NOT NULL DEFAULT GETDATE(),
+
+    CONSTRAINT FK_Transactions_SenderWallet FOREIGN KEY (SenderWalletId) REFERENCES dbo.Wallets(Id),
+    CONSTRAINT FK_Transactions_ReceiverWallet FOREIGN KEY (ReceiverWalletId) REFERENCES dbo.Wallets(Id)
+)
+GO
 
 select * From dbo.Users;
 select * From dbo.Wallets;

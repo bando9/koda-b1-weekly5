@@ -85,7 +85,7 @@ public sealed class UsersController : ControllerBase
 
             var updated = await _service.UpdateAsync(id, request, cancellationToken);
 
-            return updated is null ? Problem(statusCode: StatusCodes.Status404NotFound, title: "Produk gagal diubah.", detail: $"Produk dg ID {id} tidak ditemukan.") : Ok(updated);
+            return updated is null ? Problem(statusCode: StatusCodes.Status404NotFound, title: "User gagal diubah.", detail: $"User dg ID {id} tidak ditemukan.") : Ok(updated);
         }
         catch (ArgumentException e)
         {
@@ -98,7 +98,7 @@ public sealed class UsersController : ControllerBase
 
     // *Delete by Id
     [HttpDelete("{id}")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Delete([FromRoute]int id, CancellationToken cancellationToken)
     {
@@ -114,24 +114,21 @@ public sealed class UsersController : ControllerBase
     // *Get TransactionHistory by UserId
     [HttpGet("{id}/transactions")]
     [ProducesResponseType(typeof(List<TransactionHistoryResponse>),StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<ActionResult<List<TransactionHistoryResponse>>> GetTransactionHistory(
         [FromRoute] int id, CancellationToken cancellationToken
     )
-    {
-        try
         {
-            var history = await _service.GetTransactionHistoryResponsesAsync(id,cancellationToken);
+            if (id <= 0)
+        {
+            return BadRequest();
+        }
 
-            return Ok(history);
-        }
-        catch(Exception e)
-        {
-            return Problem(
-                statusCode:StatusCodes.Status500InternalServerError,
-                title: "Terjadi kesalahan saat mengambil data transaksi",
-                detail: e.Message
-            );
-        }
+        var history = await _service.GetTransactionHistoryResponsesAsync(
+            id,
+            cancellationToken);
+
+        return Ok(history);
     }
 
 }

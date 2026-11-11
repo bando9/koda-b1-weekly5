@@ -19,7 +19,7 @@ Aplikasi simulasi E-Wallet berbasis ASP.NET Core .NET 10 yang menyediakan fitur 
 - Razor View : Server-side rendering
 - SQL Server : Relational database
 - ADO.NET : Database access
-- Swagger / OpenAPI : API documentation and testing
+- Scalar / Swagger / OpenAPI : API documentation and testing
 
 ## Project Structure
 
@@ -91,7 +91,7 @@ Base URL: `/api/v1`
 | `/api/v1/transfers`               | POST        | Transfer balance to another wallet | ✅        |
 | `/api/v1/users/{id}/transactions` | GET         | Get user transaction history       | ✅        |
 
-## 7. Getting Started
+## Getting Started
 
 ### Prerequisites
 
@@ -154,6 +154,7 @@ dotnet run
 ### Transfer
 
 ![Confirm](/images/confirm.png)
+
 ![Transfer](/images/tf.png)
 
 ### Transaction History

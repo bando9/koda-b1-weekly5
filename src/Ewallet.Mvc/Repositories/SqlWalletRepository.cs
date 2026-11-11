@@ -1,5 +1,6 @@
 using System.Data;
 using Ewallet.Mvc.Models;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.Data.SqlClient;
 
 namespace Ewallet.Mvc.Repositories;
@@ -38,18 +39,20 @@ public class SqlWalletRepository : IWalletRepository
     }
 
 
-    public async Task<(int TransactionId, string WalletNumber, decimal NewBalance)> ProcessTopUpAsync(int userId, decimal amount, string? description, CancellationToken cancellationToken)
+    public async Task<(int TransactionId, string WalletNumber, decimal NewBalance, DateTime CreatedAt)> ProcessTopUpAsync(int userId, decimal amount, string? description, CancellationToken cancellationToken)
     {
         using var connection = new SqlConnection(_connectionString);
         await connection.OpenAsync(cancellationToken);
 
-        using var transaction = connection.BeginTransaction();
+    
+        await using var transaction = (SqlTransaction)await connection.BeginTransactionAsync(cancellationToken);
 
         try
         {
             int walletId  = 0;
             string walletNumber = string.Empty;
             decimal currentBalance = 0;
+            var now = DateTime.UtcNow;
 
             string getWalletSql = "SELECT Id, WalletNumber,Balance FROM dbo.Wallets WHERE UserId = @UserId ";
 
@@ -66,23 +69,27 @@ public class SqlWalletRepository : IWalletRepository
                 } 
                 else
                 {
-                    throw new Exception("wallet not found");    
+                    throw new InvalidOperationException("wallet not found");    
                 }
             }   
 
             string updateWalletQuery = @"
                 UPDATE dbo.Wallets SET Balance = Balance + @Amount, Updated = @Now WHERE Id = @WalletId;
             ";
+            
 
             using (var updateCommand = new SqlCommand(updateWalletQuery, connection, transaction))
             {
+                var amountParameter = updateCommand.Parameters.Add("@Amount", SqlDbType.Decimal);
+
+                amountParameter.Precision = 18;
+                amountParameter.Scale = 2;
+                amountParameter.Value = amount;
+            
+                updateCommand.Parameters.Add("@Now", SqlDbType.DateTime2).Value = now;
+                updateCommand.Parameters.AddWithValue("@WalletId", walletId);
                 
-            
-            updateCommand.Parameters.AddWithValue("@Amount", amount);
-            updateCommand.Parameters.AddWithValue("@Now", DateTime.UtcNow);
-            updateCommand.Parameters.AddWithValue("@WalletId", walletId);
-            
-            await updateCommand.ExecuteNonQueryAsync(cancellationToken);
+                await updateCommand.ExecuteNonQueryAsync(cancellationToken);
             };
             
             string insertTxQuery = @"
@@ -91,25 +98,32 @@ public class SqlWalletRepository : IWalletRepository
                 VALUES (NULL, @ReceiverWalletId, @TransactionType, @Amount, @Description, @Now)";
             
             int newTransactionId = 0;
-            using (var cmd = new SqlCommand(insertTxQuery, connection, transaction))
+            using (var txCommand = new SqlCommand(insertTxQuery, connection, transaction))
             {
-                cmd.Parameters.AddWithValue("@ReceiverWalletId", walletId);
-                cmd.Parameters.AddWithValue("@TransactionType", TransactionTypeEnum.Income);
-                cmd.Parameters.AddWithValue("@Amount", amount);
-                cmd.Parameters.AddWithValue("@Description", (object?)description ?? DBNull.Value);
-                cmd.Parameters.AddWithValue("@Now", DateTime.UtcNow);
+                var amountParameter = txCommand.Parameters.Add(
+                    "@Amount",
+                    SqlDbType.Decimal);
+
+                amountParameter.Precision = 18;
+                amountParameter.Scale = 2;
                 
-                newTransactionId = (int) await cmd.ExecuteScalarAsync(cancellationToken);
+                amountParameter.Value = amount;
+                txCommand.Parameters.AddWithValue("@ReceiverWalletId", walletId);
+                txCommand.Parameters.AddWithValue("@TransactionType", TransactionTypeEnum.Income);
+                txCommand.Parameters.AddWithValue("@Description", (object?)description ?? DBNull.Value);
+                txCommand.Parameters.Add("@Now", SqlDbType.DateTime2).Value = now;
+                
+                newTransactionId = (int) await txCommand.ExecuteScalarAsync(cancellationToken);
             }
 
-            transaction.Commit();
+            await transaction.CommitAsync(cancellationToken);
 
-            return (newTransactionId, walletNumber, currentBalance + amount);
+            return (newTransactionId, walletNumber, currentBalance + amount, now);
 
         }
         catch
         {
-            transaction.Rollback();
+            await transaction.RollbackAsync(cancellationToken);
             throw;
         }
     }
