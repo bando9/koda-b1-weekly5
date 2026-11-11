@@ -79,7 +79,7 @@ public sealed class WalletService : IWalletService
 
         if (senderWallet.Id == receiverWallet.Id)
             throw new ArgumentException("Tidak dapat transfer ke wallet sendiri.");
-
+ 
         var result = await _walletRepository.ProcessTransferAsync(
             senderUserId,
             request.ReceiverWalletNumber.Trim(),

@@ -13,7 +13,7 @@ public sealed class UserService : IUserService
     public UserService(IUserRepository repository)
     {
         _repository=repository;    
-    } 
+    }  
 
     public async Task<UserResponse?> CreateAsync(UserRequest request, CancellationToken cancellationToken)
     {

@@ -8,10 +8,11 @@ public record TransferRequest(
     ErrorMessage = "Nomor wallet hanya boleh berisi angka.")]
     string ReceiverWalletNumber,
 
+    [Required(ErrorMessage = "Jumlah transfer wajib diisi.")]
     [Range(typeof(decimal), "1", "999999999999",
         ErrorMessage = "Nominal transfer harus antara Rp1 sampai Rp999.999.999.999.")]
     decimal Amount,
 
     [StringLength(150, ErrorMessage = "Deskripsi maksimal 150 karakter.")]
-    string? Description
+    string? Description 
 );

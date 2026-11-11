@@ -12,7 +12,7 @@ public class SqlWalletRepository : IWalletRepository
     public SqlWalletRepository(IConfiguration configuration)
     {
         _connectionString=configuration.GetConnectionString("Ewalletdb") ?? throw new InvalidOperationException("Connection string tidak ditemukan di appsetting atau blm config di Program.cs");
-    }
+    } 
 
     public async Task<Wallet?> GetByUserId(int userId, CancellationToken cancellationToken)
     {
@@ -347,7 +347,7 @@ public class SqlWalletRepository : IWalletRepository
                 await reader.ReadAsync(cancellationToken);
 
                 transactionId = reader.GetInt32(0);
-                createdAt = reader.GetDateTime(1);
+                createdAt = reader.GetDateTime(1); 
             }
 
             await transaction.CommitAsync(cancellationToken);

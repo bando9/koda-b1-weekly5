@@ -3,7 +3,7 @@ using Ewallet.Mvc.Services;
 using Ewallet.Mvc.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Ewallet.Mvc.Controllers;
+namespace Ewallet.Mvc.Controllers.View;
 
 public class WalletController : Controller
 {

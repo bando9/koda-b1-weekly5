@@ -2,7 +2,7 @@ using Ewallet.Mvc.DTOs;
 using Ewallet.Mvc.Services;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Ewallet.Mvc.Controllers;
+namespace Ewallet.Mvc.Controllers.API;
 
 [ApiController]
 [Route("api/v1/wallets")]

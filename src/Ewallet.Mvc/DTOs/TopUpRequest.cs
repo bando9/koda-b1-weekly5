@@ -9,6 +9,4 @@ public record TopUpRequest(
 
     [StringLength(150,ErrorMessage = "Ga boleh lebih dari 150.")]
     string? Description
-
-
 );

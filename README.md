@@ -86,6 +86,7 @@ Base URL: `/api/v1`
 | `/api/v1/users/{id}`              | GET         | Get user detail by ID              | ✅        |
 | `/api/v1/users`                   | POST        | Create user and initialize wallet  | ✅        |
 | `/api/v1/users/{id}`              | PUT         | Update user profile                | ✅        |
+| `/api/v1/users/{id}`              | DELETE      | Delete user by ID                  | ✅        |
 | `/api/v1/wallets/{userId}`        | GET         | Get wallet information by User ID  | ✅        |
 | `/api/v1/wallets/{userId}/topups` | POST        | Top up wallet balance              | ✅        |
 | `/api/v1/transfers`               | POST        | Transfer balance to another wallet | ✅        |

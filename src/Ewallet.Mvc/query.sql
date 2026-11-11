@@ -83,12 +83,6 @@ CREATE TABLE dbo.Transactions(
 )
 GO
 
-select * From dbo.Users;
-select * From dbo.Wallets;
-select * From dbo.Transactions;
-GO
-
-
 -- *Contoh TopUp
 
 UPDATE dbo.Wallets SET Balance = Balance + 25000 WHERE UserId = 5;
@@ -109,7 +103,7 @@ ROLLBACK;
 select * from dbo.Transactions where ReceiverWalletId = 11269012; 
 
 
-
+-- *Check transactions by userId
 SELECT
     t.Id,
     t.TransactionType,
@@ -137,5 +131,8 @@ LEFT JOIN dbo.Wallets w
 ORDER BY u.Id;
 
 
-EXEC sp_help 'dbo.Wallets';
-EXEC sp_help 'dbo.Transactions';
+-- *Check all tables
+select * From dbo.Users;
+select * From dbo.Wallets;
+select * From dbo.Transactions;
+GO

@@ -30,7 +30,7 @@ public sealed class GlobalExceptionHandler : IExceptionHandler
         {
             Status= StatusCodes.Status500InternalServerError,
             Title= "Internal Server Error",
-            Detail= "Ada masalah server",
+            Detail= "Ada masalah server abangkuhhh",
             Instance= httpContext.Request.Path
         };
 
